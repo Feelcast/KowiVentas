@@ -1,0 +1,42 @@
+﻿<Window x:Name="Window1" x:Class="KowiVentas.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:KowiVentas"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800" ResizeMode="CanMinimize">
+    <Grid Background="#FFFAF5FF">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TextBox x:Name="idtxt" HorizontalAlignment="Left" Margin="40,57,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="21" BorderBrush="#FFFBDBDB"/>
+        <Button x:Name="Button" Content="Agregar&#xD;&#xA;" HorizontalAlignment="Left" Margin="80,83,0,0" VerticalAlignment="Top" Width="80" Click="Button_Click" Height="21" BorderBrush="#FFFFEEEE" Background="White" FontFamily="Consolas" FontSize="14" FontWeight="Bold"/>
+        <ListView x:Name="LV1" Margin="182,27,0,0" Foreground="Black" Width="485" BorderThickness="1,1,1,1" HorizontalAlignment="Left" VerticalAlignment="Top" Height="421" ScrollViewer.HorizontalScrollBarVisibility="Disabled" FontFamily="Consolas" FontSize="14" FontWeight="Normal" BorderBrush="#FFFFEEEE">
+            <ListView.Style>
+                <Style/>
+            </ListView.Style>
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Código" Width="120" DisplayMemberBinding="{Binding ID}" />
+                    <GridViewColumn Header="Descripción" Width="120" DisplayMemberBinding="{Binding desc}" />
+                    <GridViewColumn Header="Cantidad" Width="120" DisplayMemberBinding="{Binding cant}" />
+                    <GridViewColumn Header="Precio" Width="120" DisplayMemberBinding="{Binding precio}" />
+                </GridView>
+            </ListView.View>
+            <Label Content="Label"/>
+        </ListView>
+        <Label x:Name="TotLab" Content="$0.00" HorizontalAlignment="Left" Height="55" Margin="182,471,0,0" VerticalAlignment="Top" Width="245" Background="White" FontSize="24" FontWeight="Normal" FontFamily="Consolas" BorderThickness="1,1,1,1" BorderBrush="#FFFFEEEE"/>
+        <Label x:Name="CambioTxt" Content="$0.00" HorizontalAlignment="Left" Height="55" Margin="427,471,0,0" VerticalAlignment="Top" Width="240" Background="White" FontSize="24" FontWeight="Normal" FontFamily="Consolas" BorderThickness="1,1,1,1" BorderBrush="#FFFFEEEE"/>
+        <Label x:Name="TotLab_Copy1" Content="Total:" HorizontalAlignment="Left" Height="25" Margin="182,447,0,0" VerticalAlignment="Top" Width="245" Background="White" FontSize="14" FontWeight="Normal" FontFamily="Consolas" BorderThickness="1,1,1,1" BorderBrush="#FFFFEEEE"/>
+        <Label x:Name="TotLab_Copy2" Content="Cambio:" HorizontalAlignment="Left" Height="25" Margin="427,447,0,0" VerticalAlignment="Top" Width="240" Background="White" FontSize="14" FontWeight="Bold" FontFamily="Consolas" BorderThickness="1,1,1,1" BorderBrush="#FFFFEEEE"/>
+        <Label Content="Código:&#xD;&#xA;" HorizontalAlignment="Left" Margin="40,27,0,0" VerticalAlignment="Top" Height="30" FontFamily="Consolas" FontSize="14" Width="66" FontWeight="Bold"/>
+        <Button x:Name="BorrventaBtn" Content="Borrar venta" HorizontalAlignment="Left" Margin="40,500,0,0" VerticalAlignment="Top" Width="120" Height="26" BorderBrush="#FFFFEEEE" Background="White" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Click="BorrventaBtn_Click"/>
+        <Button x:Name="CobrarBtn" Content="Cobrar" HorizontalAlignment="Left" Margin="40,198,0,0" VerticalAlignment="Top" Width="120" Height="26" BorderBrush="#FFFFEEEE" Background="White" FontFamily="Consolas" FontSize="20" FontWeight="Bold" Click="CobrarBtn_Click"/>
+        <Button x:Name="BorrselBtn" Content="Borrar &#xA;seleccionado&#xA;&#xA;" HorizontalAlignment="Left" Margin="40,447,0,0" VerticalAlignment="Top" Width="120" Click="Button_Click" Height="40" BorderBrush="#FFFFEEEE" Background="White" FontFamily="Consolas" FontSize="14" FontWeight="Bold"/>
+        <TextBox x:Name="EntreTxt" HorizontalAlignment="Left" Margin="40,168,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="120" Height="21" BorderBrush="#FFFBDBDB"/>
+        <Label Content="Dinero &#xD;&#xA;entregado:" HorizontalAlignment="Left" Margin="40,119,0,0" VerticalAlignment="Top" Height="44" FontFamily="Consolas" Width="120" FontWeight="Bold" FontSize="14"/>
+        <Button x:Name="BuscarBtn" Content="Buscar&#xD;&#xA;producto" HorizontalAlignment="Left" Margin="40,394,0,0" VerticalAlignment="Top" Width="120" Height="40" BorderBrush="#FFFFEEEE" Background="White" FontFamily="Consolas" FontSize="14" FontWeight="Bold" Click="BuscarBtn_Click"/>
+
+    </Grid>
+</Window>
