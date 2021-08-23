@@ -12,30 +12,31 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-
-using MySql.Data;
-using MySql.Data.MySqlClient;
+using System.Data.OleDb;
 
 namespace KowiVentas
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
+    /// 
+
     public partial class MainWindow : Window
     {
-        List<Venta> items = new List<Venta>();
-        float currTotal = 0;
-        static string connStr = "server=localhost;user=root;database=inventario;port=3306;password=m74l75r99d04";
-        MySqlConnection conn = new MySqlConnection(connStr);
+        public List<Venta> items = new List<Venta>();
+        public float currTotal = 0;
+        public int ventanum = 0;
+        static string connStr = "Provider=Microsoft.ACE.OLEDB.12.0;Data Source=Kowi.accdb";
+        OleDbConnection conn = new OleDbConnection(connStr);
         public MainWindow()
         {
             InitializeComponent();
             LV1.Items.Clear();
             LV1.ItemsSource = items;
-      
+            ActualizarVentaNum();
         }
 
-        private void ItemQuery(string id)
+        private void AddToCart(string id)
         {
             int idint = 0;
             if (int.TryParse(id, out idint))
@@ -43,9 +44,9 @@ namespace KowiVentas
                 try
                 {
                     conn.Open();
-                    string sql = "SELECT ID, Description, Precio FROM Inventario WHERE ID=" + id;
-                    MySqlCommand cmd = new MySqlCommand(sql, conn);
-                    MySqlDataReader rdr = cmd.ExecuteReader();
+                    string sql = "SELECT Id, descripcion, precio FROM Inventario WHERE Id =" + id;
+                    OleDbCommand cmd = new OleDbCommand(sql, conn);
+                    OleDbDataReader rdr = cmd.ExecuteReader();
 
                     while (rdr.Read())
                     {
@@ -78,7 +79,7 @@ namespace KowiVentas
             else
             {
                 MessageBox.Show("Introduzca un código válido");
-            }            
+            }
         }
 
         private int QuanQuery(int id)
@@ -88,8 +89,8 @@ namespace KowiVentas
             {
                 conn.Open();
                 string sql = "SELECT Cantidad FROM Inventario WHERE ID= " + id;
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                MySqlDataReader rdr = cmd.ExecuteReader();
+                OleDbCommand cmd = new OleDbCommand(sql, conn);
+                OleDbDataReader rdr = cmd.ExecuteReader();
 
                 while (rdr.Read())
                 {
@@ -116,7 +117,7 @@ namespace KowiVentas
         private bool idcheck(int id)
         {
             bool check = false;
-            foreach(Venta v in items)
+            foreach (Venta v in items)
             {
                 check = v.ID == id;
                 if (check) { break; }
@@ -126,33 +127,24 @@ namespace KowiVentas
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
-        {                   
-            
+        {
+
             if (idtxt.Text != "")
             {
-                ItemQuery(idtxt.Text);
+                AddToCart(idtxt.Text);
             }
             else
             {
                 MessageBox.Show("Escriba un código de producto");
             }
-            LV1.Items.Refresh();
-            currTotal = CalcTotal(items);
-            if (currTotal == 0)
-            {
-                TotLab.Content = "$0.00";
-            }
-            else
-            {
-                TotLab.Content = "$" + string.Format("{0:#.00}", currTotal);
-            }          
+            updateAll();
             CambioTxt.Content = "$0.00";
         }
 
         private float CalcTotal(List<Venta> prods)
         {
             float sum = 0;
-            foreach(Venta v in prods)
+            foreach (Venta v in prods)
             {
                 sum += v.cant * v.precio;
             }
@@ -167,8 +159,10 @@ namespace KowiVentas
                 if (float.TryParse(EntreTxt.Text, out ent))
                 {
                     CambioTxt.Content = "$" + string.Format("{0:#.00}", ent - currTotal);
+                    RegisVenta();
                     DescontarVenta();
                     LimpiarVenta();
+                    ActualizarVentaNum();
                 }
                 else
                 {
@@ -177,8 +171,10 @@ namespace KowiVentas
             }
             else
             {
+                RegisVenta();
                 DescontarVenta();
                 LimpiarVenta();
+                ActualizarVentaNum();
             }
 
         }
@@ -189,8 +185,11 @@ namespace KowiVentas
             {
                 foreach (Venta v in items)
                 {
-                    int newquan = QuanQuery(v.ID) - v.cant;
-                    ModificarCantidad(v.ID, newquan);                
+                    if (v.ID != 0)
+                    {
+                        int newquan = QuanQuery(v.ID) - v.cant;
+                        ModificarCantidad(v.ID, newquan);
+                    }
                 }
                 MessageBox.Show("Venta realizada");
             }
@@ -203,11 +202,15 @@ namespace KowiVentas
         private bool ChecarExistencia()
         {
             bool suc = true;
-            foreach(Venta v in items)
+            foreach (Venta v in items)
             {
-                suc = v.cant <= QuanQuery(v.ID);
-                if (!suc){
-                    break;
+                if (v.ID != 0)
+                {
+                    suc = v.cant <= QuanQuery(v.ID);
+                    if (!suc)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -220,8 +223,8 @@ namespace KowiVentas
             {
                 conn.Open();
                 string sql = "UPDATE inventario SET Cantidad = " + quan + " WHERE ID = " + id;
-                MySqlCommand cmd = new MySqlCommand(sql, conn);
-                MySqlDataReader rdr = cmd.ExecuteReader();
+                OleDbCommand cmd = new OleDbCommand(sql, conn);
+                OleDbDataReader rdr = cmd.ExecuteReader();
                 while (rdr.Read())
                 {
                 }
@@ -249,9 +252,103 @@ namespace KowiVentas
             LimpiarVenta();
         }
 
-        private void BuscarBtn_Click(object sender, RoutedEventArgs e)
+        private void BorrselBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (LV1.SelectedIndex != -1)
+            {
+                int selindex = LV1.SelectedIndex;
+                items.RemoveAt(selindex);
+                updateAll();
+            }
         }
+
+        public void updateAll()
+        {
+            LV1.Items.Refresh();
+            currTotal = CalcTotal(items);
+            if (currTotal == 0)
+            {
+                TotLab.Content = "$0.00";
+            }
+            else
+            {
+                TotLab.Content = "$" + string.Format("{0:#.00}", currTotal);
+            }
+        }
+
+        private void VSCBtn_Click(object sender, RoutedEventArgs e)
+        {
+            Window1 VSC = new Window1();
+            VSC.Show();
+        }
+
+        private void ActualizarVentaNum()
+        {
+            ventanum = Obtenerventanum();
+            VentaNumLab.Content = ventanum;
+        }
+
+        private int Obtenerventanum()
+        {
+            int num = 0;
+            try
+            {
+                conn.Open();
+                string sql = "SELECT TOP 1 ventanum FROM Ventas ORDER BY ventanum DESC";
+                OleDbCommand cmd = new OleDbCommand(sql, conn);
+                OleDbDataReader rdr = cmd.ExecuteReader();
+
+                while (rdr.Read())
+                {
+                    int idread = int.Parse(rdr[0].ToString());
+                    if (rdr[0] != null)
+                    {
+                        num = int.Parse(rdr[0].ToString());
+                    }
+                    else
+                    {
+                        num = 0;
+                    }
+                }
+                rdr.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            conn.Close();
+            return num + 1;
+        }     
+
+        private void RegisItem(Venta v)
+        {
+            try
+            {
+                conn.Open();
+                string sql = "INSERT INTO Ventas (ventanum, itemID, descripcion, cantidad, precio, totalventa) VALUES( \' "+ ventanum +" \', \'"+ v.ID + " \', \'" + v.desc +" \', \'" + v.cant + " \', \'" + v.precio + " \', \'" + currTotal+"\'); ";
+                OleDbCommand cmd = new OleDbCommand(sql, conn);
+                OleDbDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                }
+                rdr.Close();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+            conn.Close();
+        }
+
+        private void RegisVenta()
+        {
+            foreach(Venta v in items)
+            {
+                RegisItem(v);
+            }
+
+        }
+
     }
 
     public class Venta
@@ -264,14 +361,9 @@ namespace KowiVentas
 
         public float precio { get; set; }
 
-    }
-
-    public class Existencia
-    {
-        public int ID { get; set; }
-        public int cant { get; set; }
+        public int ventanum { get; set; }
 
     }
-
-
 }
+
+
