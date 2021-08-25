@@ -349,6 +349,27 @@ namespace KowiVentas
 
         }
 
+        private void dragMe(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                DragMove();
+            }
+            catch(Exception)
+            {
+
+            }
+        }
+
+        private void SalirBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void MinBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
     }
 
     public class Venta
